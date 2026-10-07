@@ -1,0 +1,4 @@
+Method,Avg Exception Rate (%),Avg Kupiec p-value,Avg Christoffersen p-value,Avg ES Ratio
+historical,1.44,0.0231,0.1096,1.07
+normal,1.52,0.0088,0.0811,1.19
+student_t,1.07,0.5749,0.1069,1.03
