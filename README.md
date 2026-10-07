@@ -2,6 +2,9 @@
 
 > A complete risk measurement system that answers one question every bank, hedge fund, and portfolio manager asks every single day: **"What is the worst-case loss I could face tomorrow?"**
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mkxk2evmghkv5rbpugw99x.streamlit.app/)
+🔗 **Live Web Application:** [https://mkxk2evmghkv5rbpugw99x.streamlit.app/](https://mkxk2evmghkv5rbpugw99x.streamlit.app/)
+
 ---
 
 ## Table of Contents
