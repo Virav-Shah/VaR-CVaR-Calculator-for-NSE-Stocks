@@ -20,8 +20,7 @@
 9. [Results and What They Mean](#9-results-and-what-they-mean)
 10. [Where These Models Break Down — Honest Limitations](#10-where-these-models-break-down--honest-limitations)
 11. [Visual Diagnostics — What Each Chart Shows](#11-visual-diagnostics--what-each-chart-shows)
-12. [Concepts You Must Know to Defend This Project in an Interview](#12-concepts-you-must-know-to-defend-this-project-in-an-interview)
-13. [Setup & Execution](#13-setup--execution)
+12. [Setup & Execution](#12-setup--execution)
 
 ---
 
@@ -430,78 +429,7 @@ During crises, stocks that normally have low correlation suddenly move together 
 
 ---
 
-## 12. Concepts You Must Know to Defend This Project in an Interview
-
-### Tier 1: Core Concepts (Must Know Cold)
-
-1. **Value at Risk (VaR)** — Definition, interpretation, confidence level, holding period. *"What does 99% 1-day VaR of 3% mean?"*
-2. **Conditional VaR (CVaR) / Expected Shortfall (ES)** — How it differs from VaR, why regulators prefer it, sub-additivity.
-3. **Log returns vs. simple returns** — Why we use log returns (additivity, symmetry), the formula r = ln(P_t/P_{t-1}).
-4. **Normal distribution** — Properties, why it fails for financial returns, the "thin tails" problem.
-5. **Student's t-distribution** — Fat tails, degrees of freedom (nu), how it nests the Normal as a special case (nu -> infinity).
-6. **Fat tails / Leptokurtosis** — Why extreme events happen more often than the Normal predicts, excess kurtosis > 0.
-7. **Confidence level (alpha)** — 95% vs 99%, what it means in practice, how it relates to the exception rate.
-8. **Rolling window approach** — Why 250 days (1 trading year), trade-offs of shorter vs longer windows.
-
-### Tier 2: Backtesting & Validation (Must Be Able to Explain)
-
-9. **Backtesting** — Why it's necessary, out-of-sample vs in-sample, regulatory requirements.
-10. **Kupiec POF test** — What it tests (proportion of failures), Likelihood Ratio statistic, chi-squared critical value, how to interpret the p-value.
-11. **Christoffersen Independence test** — Why independence matters, the transition matrix (T00, T01, T10, T11), what clustered exceptions mean financially.
-12. **Basel Traffic Light system** — Green/Yellow/Red zones, exception thresholds, real-world consequences (capital penalties).
-13. **Expected Shortfall Ratio** — What it tests, how it validates CVaR calibration.
-
-### Tier 3: Statistical & Mathematical Foundations (Should Be Comfortable With)
-
-14. **Maximum Likelihood Estimation (MLE)** — How we fit the t-distribution parameters, the concept of maximising the probability of observing our data.
-15. **Quantile / Percentile** — How Historical VaR uses the empirical quantile.
-16. **Probability Density Function (PDF) and Cumulative Distribution Function (CDF)** — How they relate, how VaR is the inverse CDF.
-17. **Skewness** — Negative skew in equity returns (crashes > rallies), financial interpretation.
-18. **Kurtosis** — Excess kurtosis, why > 0 matters for risk, difference between platykurtic/mesokurtic/leptokurtic.
-19. **Jarque-Bera test** — Tests for normality using skewness and kurtosis, why p close to 0 proves non-normality.
-20. **Pinball loss / Quantile regression** — Alternative formulation of VaR as an optimisation problem.
-21. **Root finding (Brent's method)** — Solving F(q) = alpha numerically when an analytical formula isn't available.
-
-### Tier 4: Portfolio Theory & Optimisation (Key Differentiator)
-
-22. **Portfolio diversification** — Why combining stocks reduces risk, correlation's role.
-23. **Covariance matrix** — How it captures pairwise relationships between stock returns, used in min-variance optimisation.
-24. **Markowitz Mean-Variance optimisation** — The classic approach, efficient frontier, min-variance portfolio.
-25. **Rockafellar-Uryasev (RU) CVaR optimisation** — The reformulation trick, why CVaR optimisation is a Linear Program, auxiliary variable zeta, the u_i slack variables.
-26. **Linear Programming** — What it is, why the RU formulation is LP, the HiGHS solver.
-27. **Sub-additivity and coherent risk measures** — The 4 axioms (monotonicity, sub-additivity, positive homogeneity, translation invariance), why VaR fails sub-additivity, why CVaR satisfies all four.
-28. **Out-of-sample testing** — Train/test split (pre-2016 / post-2016), why it prevents overfitting.
-29. **Weight constraints** — Why we cap each stock at 30% (concentration risk), long-only constraint.
-
-### Tier 5: Market Microstructure & Practical Knowledge (Bonus Points)
-
-30. **Volatility clustering** — Why bad days follow bad days, ARCH/GARCH models (conceptual), ACF of squared returns as evidence.
-31. **Survivorship bias** — What it is, why it matters for backtests, how it inflates apparent performance.
-32. **Liquidity risk** — Bid-ask spread, market depth, why VaR understates risk for illiquid assets.
-33. **Regime shifts** — Structural breaks in market behaviour, why static models struggle.
-34. **Basel Accords (I, II, III)** — Evolution of bank capital regulation, from Basel I (simple rules) to Basel III/FRTB (ES-based, stressed calibration).
-35. **Circuit limits on NSE** — Upper/lower circuits (5%, 10%, 20%), how they affect return distributions.
-36. **Corporate actions** — Splits, bonuses, dividends, ex-dates, and why adjusted prices are necessary.
-37. **Ghost effects** — When an extreme observation enters or leaves the rolling window, causing sudden jumps in VaR.
-38. **FRTB (Fundamental Review of the Trading Book)** — The 2019 Basel standard that replaced VaR with Expected Shortfall.
-
-### Tier 6: Potential Follow-Up Questions & How to Answer Them
-
-| Question | Key Points to Hit |
-|----------|-------------------|
-| *"Why not use GARCH?"* | GARCH models conditional volatility (sigma_t depends on sigma_{t-1} and epsilon_{t-1}), which addresses volatility clustering. It would improve Christoffersen test results. Not implemented to keep focus on comparing static VaR methods. |
-| *"How would you extend this to a multi-asset portfolio?"* | Already done — Equal-Weight Portfolio option in the dashboard, plus min-variance and min-CVaR optimisation in portfolio.py. |
-| *"What if returns are not i.i.d.?"* | Exactly the limitation we document. GARCH for volatility clustering, copulas for tail dependence, regime-switching models for structural breaks. |
-| *"Why 250-day window?"* | 250 is approximately the number of trading days in a year. Short enough to be responsive, long enough for statistical significance. Basel requires at least 250 days for internal model validation. |
-| *"Can VaR increase with diversification?"* | Yes! This is VaR's sub-additivity failure. CVaR cannot — it's coherent. This is a major reason Basel III switched to ES. |
-| *"How does Rockafellar-Uryasev make CVaR optimisable?"* | Introduces auxiliary variable zeta and slack variables u_i, converting the quantile-dependent problem into a linear program with N+M+1 variables and N inequality constraints. |
-| *"What is the Jarque-Bera test and why does it matter?"* | Tests joint hypothesis that skewness = 0 and excess kurtosis = 0 (i.e., returns are Normal). p close to 0 for all stocks proves normality assumption is invalid. |
-| *"What's the difference between 95% and 99% VaR?"* | 99% is stricter — fewer exceptions allowed, higher VaR number. Banks typically report 99% for regulatory purposes. 95% is used for internal risk monitoring. |
-| *"How would you handle a stock that was listed only 2 years ago?"* | Smaller data window, higher parameter uncertainty. Could use sector/peer returns as a proxy for the missing history, or use stressed scenarios from comparable stocks. |
-
----
-
-## 13. Setup & Execution
+## 12. Setup & Execution
 
 ### Prerequisites
 - Python 3.9+
