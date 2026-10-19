@@ -1,0 +1,50 @@
+Model,Feature,MeanAbsoluteSHAP,ForecastRows
+LightGBM V1,volume_z_21,0.0011086411631551767,31810
+LightGBM V1,vix_z_63,0.0009301380091686271,31810
+LightGBM V1,vol_5,0.000769026238888326,31810
+LightGBM V1,downside_21,0.0007052292621518744,31810
+LightGBM V1,momentum_5,0.000704187394746504,31810
+LightGBM V1,dispersion,0.000648087244571077,31810
+LightGBM V1,parkinson_21,0.0006022388408610306,31810
+LightGBM V1,vol_21,0.0006010248026897989,31810
+LightGBM V1,fx_return,0.0005916656167793174,31810
+LightGBM V1,vol_63,0.0005422726572483861,31810
+LightGBM V1,vix_change_5,0.0005013347063392832,31810
+LightGBM V1,skew_63,0.0004984031770640326,31810
+LightGBM V1,abs_return,0.0004779945970859043,31810
+LightGBM V1,kurt_63,0.00047588881364885537,31810
+LightGBM V1,vol_ratio,0.0004595173088666522,31810
+LightGBM V1,correlation_21,0.00043752464780406983,31810
+LightGBM V1,down_return,0.00042609616758872376,31810
+LightGBM V1,beta_21,0.0003097766438394497,31810
+Pooled hybrid V2 residual,vix_z_63,0.0015339564523063963,31810
+Pooled hybrid V2 residual,student_t_var_0.99_norm,0.0014048317265442402,31810
+Pooled hybrid V2 residual,volume_z_21,0.0010995435634998999,31810
+Pooled hybrid V2 residual,student_t_var_0.95_norm,0.0006521008481017653,31810
+Pooled hybrid V2 residual,fx_return,0.0003904532214393869,31810
+Pooled hybrid V2 residual,down_return,0.00035673172327137524,31810
+Pooled hybrid V2 residual,vix_change_5,0.00032556464021632253,31810
+Pooled hybrid V2 residual,dispersion,0.00027657826911937114,31810
+Pooled hybrid V2 residual,inverse_student_df,0.0002714270656048864,31810
+Pooled hybrid V2 residual,skew_63,0.00027102096185810116,31810
+Pooled hybrid V2 residual,momentum_5,0.00025283441407692955,31810
+Pooled hybrid V2 residual,downside_21,0.00020441586534206797,31810
+Pooled hybrid V2 residual,abs_return,0.00019401274292281693,31810
+Pooled hybrid V2 residual,parkinson_21,0.0001765387324239925,31810
+Pooled hybrid V2 residual,vol_ratio,0.00015143907336530495,31810
+Pooled hybrid V2 residual,vol_5,0.00010507366950703978,31810
+Pooled hybrid V2 residual,kurt_63,0.00010387847258018696,31810
+Pooled hybrid V2 residual,vol_63,9.406416048290569e-05,31810
+Pooled hybrid V2 residual,correlation_21,9.30513110535566e-05,31810
+Pooled hybrid V2 residual,beta_21,6.200117389645842e-05,31810
+Pooled hybrid V2 residual,vol_21,5.760248473169209e-05,31810
+Pooled hybrid V2 residual,stock_INFY,1.7809906698421708e-05,31810
+Pooled hybrid V2 residual,stock_ITC,7.43226090481327e-06,31810
+Pooled hybrid V2 residual,stock_TCS,4.652877170362622e-06,31810
+Pooled hybrid V2 residual,stock_HDFCBANK,3.1147154951459264e-06,31810
+Pooled hybrid V2 residual,stock_BHARTIARTL,1.0246299811280148e-06,31810
+Pooled hybrid V2 residual,stock_SBIN,8.572988845536599e-07,31810
+Pooled hybrid V2 residual,stock_ICICIBANK,2.4449060152747436e-07,31810
+Pooled hybrid V2 residual,stock_HINDUNILVR,0.0,31810
+Pooled hybrid V2 residual,stock_LT,0.0,31810
+Pooled hybrid V2 residual,stock_RELIANCE,0.0,31810

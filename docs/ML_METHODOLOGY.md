@@ -86,10 +86,10 @@ After sorting, the source quantile can differ by row: we explain the selected
 source model and save its identity. Additivity is verified numerically. This is
 conditional attribution of the selected branch, not a globally smooth explanation
 of the sorting operation. SHAP base values are expected model outputs, not
-historical unconditional VaR. PSI uses training-derived bins with infinite tails. The dashboard monitors the
+historical unconditional VaR. PSI uses training-derived bins with infinite tails. The former dashboard drift view compared the
 latest 60 forecast observations against the training distribution of the model
 active at the start of that window, avoiding overlap and unstable one-day drift
-reports when the final forecast block is short. Per-block PSI remains archived.
+reports when the final forecast block was short. That view was removed when the interface was simplified; per-block PSI remains archived.
 
 The dataset is a selected surviving equity universe and retrospectively adjusted
 vendor history, not a point-in-time vintage. Cached prices may have a different

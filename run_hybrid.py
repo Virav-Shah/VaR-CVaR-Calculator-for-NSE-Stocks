@@ -12,8 +12,12 @@ def export_tables():
     for source,target in [('version_comparison.csv','v1_v2_comparison.csv'),
                           ('headline_summary.csv','v1_v2_summary.csv')]:
         shutil.copyfile(Path('results/ml_v2')/source,destination/target)
-    from scripts.package_dashboard import package
-    package()
+    # A calibration-only first run has no completed V2 forecast/SHAP bundle yet.
+    if Path('results/ml_v2/manifest.json').exists():
+        from scripts.package_dashboard import package
+        package()
+    else:
+        print('Comparison tables exported. Run the full V2 pipeline to refresh the dashboard bundle.', flush=True)
 
 
 def main():

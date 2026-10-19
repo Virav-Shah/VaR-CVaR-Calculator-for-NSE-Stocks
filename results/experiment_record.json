@@ -1,0 +1,908 @@
+{
+  "prices": {
+    "rows": 4933,
+    "stocks": 10,
+    "start": "2006-01-02",
+    "end": "2025-12-31",
+    "missing_cells": 0,
+    "sha256": "f6f71219304e798fef77c31e7985e717f05f47ec378176d860afb54a2b801678"
+  },
+  "v1_manifests": {
+    "BHARTIARTL.NS": {
+      "ticker": "BHARTIARTL.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 8,
+          "min_child_samples": 49,
+          "subsample": 0.7628088249474746,
+          "colsample_bytree": 0.6422772674924287,
+          "learning_rate": 0.053021994571619234,
+          "n_estimators": 36
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "HDFCBANK.NS": {
+      "ticker": "HDFCBANK.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 11,
+          "min_child_samples": 80,
+          "subsample": 0.6061753482887408,
+          "colsample_bytree": 0.8909729556485984,
+          "learning_rate": 0.0564638664293258,
+          "n_estimators": 64
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "HINDUNILVR.NS": {
+      "ticker": "HINDUNILVR.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0003967605077052988
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 8,
+          "min_child_samples": 49,
+          "subsample": 0.7628088249474746,
+          "colsample_bytree": 0.6422772674924287,
+          "learning_rate": 0.053021994571619234,
+          "n_estimators": 40
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "ICICIBANK.NS": {
+      "ticker": "ICICIBANK.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 3,
+          "num_leaves": 4,
+          "min_child_samples": 98,
+          "subsample": 0.8325398470083344,
+          "colsample_bytree": 0.8818496824692568,
+          "learning_rate": 0.06428499585801385,
+          "n_estimators": 66
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "INFY.NS": {
+      "ticker": "INFY.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 11,
+          "min_child_samples": 80,
+          "subsample": 0.6061753482887408,
+          "colsample_bytree": 0.8909729556485984,
+          "learning_rate": 0.0564638664293258,
+          "n_estimators": 23
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "ITC.NS": {
+      "ticker": "ITC.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 11,
+          "min_child_samples": 80,
+          "subsample": 0.6061753482887408,
+          "colsample_bytree": 0.8909729556485984,
+          "learning_rate": 0.0564638664293258,
+          "n_estimators": 16
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "LT.NS": {
+      "ticker": "LT.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 3,
+          "num_leaves": 4,
+          "min_child_samples": 50,
+          "subsample": 0.7099085529881075,
+          "colsample_bytree": 0.7368209952651108,
+          "learning_rate": 0.051178145982369534,
+          "n_estimators": 72
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "RELIANCE.NS": {
+      "ticker": "RELIANCE.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 8,
+          "min_child_samples": 49,
+          "subsample": 0.7628088249474746,
+          "colsample_bytree": 0.6422772674924287,
+          "learning_rate": 0.053021994571619234,
+          "n_estimators": 88
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "SBIN.NS": {
+      "ticker": "SBIN.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 4,
+          "num_leaves": 8,
+          "min_child_samples": 49,
+          "subsample": 0.7628088249474746,
+          "colsample_bytree": 0.6422772674924287,
+          "learning_rate": 0.053021994571619234,
+          "n_estimators": 26
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    },
+    "TCS.NS": {
+      "ticker": "TCS.NS",
+      "config": {
+        "train_size": 750,
+        "validation_size": 375,
+        "gap": 5,
+        "refit_every": 60,
+        "validation_block": 125,
+        "seed": 42
+      },
+      "frozen_parameters": {
+        "linear": {
+          "penalty": 0.0007114476009343421
+        },
+        "lightgbm": {
+          "max_depth": 3,
+          "num_leaves": 4,
+          "min_child_samples": 98,
+          "subsample": 0.8325398470083344,
+          "colsample_bytree": 0.8818496824692568,
+          "learning_rate": 0.06428499585801385,
+          "n_estimators": 8
+        }
+      },
+      "quantiles": [
+        0.95,
+        0.96,
+        0.97,
+        0.98,
+        0.99,
+        0.995
+      ],
+      "feature_columns": [
+        "vol_5",
+        "vol_21",
+        "vol_63",
+        "vol_ratio",
+        "parkinson_21",
+        "downside_21",
+        "skew_63",
+        "kurt_63",
+        "abs_return",
+        "down_return",
+        "dispersion",
+        "beta_21",
+        "correlation_21",
+        "vix_z_63",
+        "vix_change_5",
+        "volume_z_21",
+        "fx_return",
+        "momentum_5"
+      ],
+      "observations": 4316,
+      "first_origin": "2008-06-06 00:00:00",
+      "last_origin": "2025-12-30 00:00:00",
+      "oos_start": "2013-02-07 00:00:00",
+      "oos_end": "2025-12-31 00:00:00",
+      "prices_sha256": "52b588dacaa78f78f5aebe8d793bad11d145bed6563dd7265fd7b58ee092cf57",
+      "factors_sha256": "2c89b1d3be7093c98c2b21f48ca7d8e77654fa540674b1a47145c6b2fc20efea",
+      "python": "3.14.0",
+      "packages": {
+        "numpy": "2.5.3",
+        "pandas": "3.0.6",
+        "scikit-learn": "1.9.1",
+        "lightgbm": "4.7.0",
+        "shap": "0.54.1",
+        "optuna": "5.0.0"
+      },
+      "es_assumption": "Linear quantile interpolation; constant tail above 0.995. Not exact ES.",
+      "forecast_timing": "At NSE close t predict loss on next equity session; FX lagged one available observation.",
+      "limitations": [
+        "Retrospectively adjusted prices; no point-in-time vendor vintage.",
+        "Survivorship-selected universe.",
+        "750 observations contain only ~7.5 expected 99% exceptions.",
+        "Five-session purge separates labels, not all 63-day feature history.",
+        "PSI is a diagnostic heuristic, not an automatic trading decision."
+      ]
+    }
+  },
+  "v2_manifest": {
+    "config": {
+      "train_size": 750,
+      "validation_size": 375,
+      "gap": 5,
+      "refit_every": 60,
+      "validation_block": 125,
+      "seed": 42
+    },
+    "frozen_parameters": {
+      "max_depth": 2,
+      "num_leaves": 4,
+      "min_child_samples": 340,
+      "learning_rate": 0.047208048834382316,
+      "n_estimators": 34
+    },
+    "features": [
+      "student_t_var_0.95_norm",
+      "student_t_var_0.99_norm",
+      "vol_5",
+      "vol_21",
+      "vol_63",
+      "vol_ratio",
+      "parkinson_21",
+      "downside_21",
+      "skew_63",
+      "kurt_63",
+      "abs_return",
+      "down_return",
+      "dispersion",
+      "beta_21",
+      "correlation_21",
+      "vix_z_63",
+      "vix_change_5",
+      "volume_z_21",
+      "fx_return",
+      "momentum_5",
+      "inverse_student_df",
+      "stock_BHARTIARTL",
+      "stock_HDFCBANK",
+      "stock_HINDUNILVR",
+      "stock_ICICIBANK",
+      "stock_INFY",
+      "stock_ITC",
+      "stock_LT",
+      "stock_RELIANCE",
+      "stock_SBIN",
+      "stock_TCS"
+    ],
+    "prices_sha256": "f6f71219304e798fef77c31e7985e717f05f47ec378176d860afb54a2b801678",
+    "panel_sha256": "031af4e7c2b32e3bb86c6b8378d1cc3699663364fbcaa1a1f34975f00c1166f2",
+    "source_hashes": {
+      "src/hybrid_var.py": "0e04b1b2d272766eaf7a586008eacd2ba699bfdf00da422d56c8fe640c3a657d",
+      "src/hybrid_pipeline.py": "7ded3cc7b3f9fe132a2aac474c02da7beda9f7b7d4726a1db29b3d8b0881ff49"
+    },
+    "package_versions": {
+      "numpy": "2.5.4",
+      "pandas": "3.0.6",
+      "scipy": "1.18.1",
+      "lightgbm": "4.7.0",
+      "shap": "0.54.1",
+      "optuna": "5.0.0"
+    },
+    "quantiles": [
+      0.95,
+      0.99
+    ],
+    "calibration_window": 250,
+    "calibration_rank": {
+      "0.95": 239,
+      "0.99": 249
+    },
+    "train_dates": 750,
+    "train_rows": 7500,
+    "assets": [
+      "BHARTIARTL.NS",
+      "HDFCBANK.NS",
+      "HINDUNILVR.NS",
+      "ICICIBANK.NS",
+      "INFY.NS",
+      "ITC.NS",
+      "LT.NS",
+      "RELIANCE.NS",
+      "SBIN.NS",
+      "TCS.NS"
+    ],
+    "oos_start": "2013-02-07 00:00:00",
+    "oos_end": "2025-12-31 00:00:00",
+    "evaluation_start": "2014-02-11",
+    "evaluation_end": "2025-12-31",
+    "interpretation": "Retrospective V2 experiment: V1 OOS results influenced this redesign; not an untouched final test.",
+    "tail_assumption": "Student-t df from historical fit; location and scale match calibrated 95% and 99% VaR.",
+    "limitations": [
+      "Correlated stocks do not provide independent crash observations.",
+      "Rolling residual calibration has no IID finite-sample guarantee here.",
+      "ES is a parametric tail proxy and has not passed an independent ES validation.",
+      "Statistical test passes alone do not establish production readiness."
+    ]
+  },
+  "development_score_notes": [
+    "Training scores were reconstructed from the first serialized OOS refit, without refitting.",
+    "Validation scores are the winning saved Optuna objectives across three rolling folds.",
+    "Full OOS scores use 3181 dates per stock before the calibration comparison warm-up exclusion.",
+    "V1 averages six quantiles in log-loss units; V2 averages two quantiles in volatility-normalized units.",
+    "These scores are not directly comparable across V1 and V2.",
+    "The first refit training window overlaps the earlier tuning/validation era; this is not a disjoint random train/validation/test split.",
+    "No historical per-iteration training loss curves were saved."
+  ],
+  "portfolio": {
+    "train_start": "2006-01-03",
+    "train_end": "2015-12-31",
+    "train_sessions": 2462,
+    "test_start": "2016-01-01",
+    "test_end": "2025-12-31",
+    "test_sessions": 2470
+  }
+}

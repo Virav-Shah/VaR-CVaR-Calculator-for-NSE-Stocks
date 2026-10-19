@@ -1,6 +1,6 @@
 # V1 → V2: measured results
 
-Completed locally on 2026-10-19 using cached data ending 2025-12-31. No GitHub push or hosted deployment was performed.
+The original research run completed locally on 2026-10-19 using cached data ending 2025-12-31. Results and a compact dashboard bundle were subsequently published to GitHub. This report preserves the research checkpoint; the README documents the current presentation and additional development-score evidence.
 
 **Plain-language interpretation:** the pooled AI makes more accurate risk forecasts than the original AI; its safety buffer catches underestimation but often raises the risk limit too much.
 
@@ -50,7 +50,7 @@ V1 outcomes influenced V2 design, so these dates are no longer an untouched fina
 - 31,810 raw forecasts; 29,310 calibrated forecast rows after warm-up.
 - Artifact replay passed for every saved pooled model. Actual losses and 20-day volatility match prices; training labels precede forecast origins; calibration and SHAP decompositions reproduce saved outputs.
 - V1 input hashes match the pre-experiment snapshot. Original forecasts, models and V1 results remain available.
-- 29 automated tests passed, covering calibration causality, Student-t tail recovery, non-crossing outputs, SHAP, backtesting, portfolio diagnostics and all six dashboard tabs. Dashboard interaction checks additionally cover confidence changes, crash-date changes and switching back to V1 explanations.
+- At that development checkpoint, 29 automated tests passed, covering calibration causality, Student-t tail recovery, non-crossing outputs, SHAP, backtesting, portfolio diagnostics and the then-six-tab dashboard. The current interface has five tabs; subsequent deployed V1 explanation checks are documented in the README.
 - The isolated Mac `.venv-mps` environment is reused. LightGBM trains on CPU; PyTorch MPS support remains available for workloads that actually require it.
 
 See [methodology](V2_METHODOLOGY.md), [per-stock comparison CSV](../results/tables/v1_v2_comparison.csv), [headline CSV](../results/tables/v1_v2_summary.csv) and the local manifest at `results/ml_v2/manifest.json`.
