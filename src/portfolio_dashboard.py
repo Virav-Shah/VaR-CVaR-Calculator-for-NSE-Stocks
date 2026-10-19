@@ -31,29 +31,29 @@ def render_portfolio(returns, alpha):
         return
     daily, wealth, drawdown, metrics = portfolio_diagnostics(test, weights, alpha)
     color = alt.Color('Portfolio:N', scale=alt.Scale(domain=NAMES, range=COLORS), legend=alt.Legend(orient='bottom', title=None, columns=1))
-    st.subheader('Does lower tail risk justify the return trade-off?')
-    st.caption(f'All strategies use the same {len(test):,} unseen sessions: {test.index[0]:%d %b %Y}–{test.index[-1]:%d %b %Y}. Weights were fitted through 31 Dec 2015 and are held at daily rebalancing targets. This comparison covers the full stock universe, independent of the asset selector.')
+    st.subheader('Portfolio Risk and Return')
+    st.caption(f'Evaluation period: {test.index[0]:%d %b %Y}–{test.index[-1]:%d %b %Y} ({len(test):,} trading sessions). Portfolio weights were estimated using data through 31 Dec 2015 and applied as daily rebalancing targets. All strategies cover the same ten stocks and evaluation dates.')
     baseline = metrics.loc['Equal Weight']
     cols = st.columns(3)
     for col, name in zip(cols, NAMES):
         es = metrics.loc[name, 'Daily tail loss (ES)']
         delta = None if name == 'Equal Weight' else f"{(es / baseline['Daily tail loss (ES)'] - 1)*100:+.1f}% vs equal weight"
         col.metric(f'{name} · {alpha:.0%} daily ES', f'{es:.2%}', delta, delta_color='inverse')
-    st.caption(f'ES is the average loss in the worst {1-alpha:.0%} of daily outcomes, estimated with fractional boundary weighting. Lower is better; it is not annualized.')
+    st.caption(f'Expected shortfall (ES) measures the average loss in the worst {1-alpha:.0%} of daily outcomes, including fractional weighting at the quantile boundary. ES is reported on a daily basis; return is annualized.')
     data = metrics.reset_index()
     scatter = alt.Chart(data).mark_circle(size=230).encode(
-        x=alt.X('Daily tail loss (ES):Q', axis=alt.Axis(format='.1%'), title=f'{alpha:.0%} daily tail loss (lower is better)', scale=alt.Scale(zero=False)),
-        y=alt.Y('Annualized return:Q', axis=alt.Axis(format='.1%'), title='Annualized return (higher is better)', scale=alt.Scale(zero=False)),
+        x=alt.X('Daily tail loss (ES):Q', axis=alt.Axis(format='.1%'), title=f'Daily Expected Shortfall ({alpha:.0%})', scale=alt.Scale(zero=False)),
+        y=alt.Y('Annualized return:Q', axis=alt.Axis(format='.1%'), title='Annualized Return', scale=alt.Scale(zero=False)),
         color=color, tooltip=['Portfolio:N', alt.Tooltip('Daily tail loss (ES):Q', format='.2%'), alt.Tooltip('Annualized return:Q', format='.2%'), alt.Tooltip('Maximum drawdown:Q', format='.2%')])
     labels = scatter.mark_text(align='left', dx=12, dy=-12, fontSize=12).encode(text='Portfolio:N')
     st.altair_chart((scatter + labels).properties(height=320).interactive(), width='stretch')
     cv = metrics.loc['Min CVaR']
-    st.write(f"Against equal weight, Min CVaR changed realized daily ES by {(cv['Daily tail loss (ES)']-baseline['Daily tail loss (ES)'])*100:+.2f} percentage points and annualized return by {(cv['Annualized return']-baseline['Annualized return'])*100:+.2f} percentage points. Optimization on training data does not guarantee an OOS improvement.")
-    st.subheader('How deep were the losses, and how long did recovery take?')
+    st.write(f"Minimum CVaR relative to Equal Weight: daily expected shortfall {(cv['Daily tail loss (ES)']-baseline['Daily tail loss (ES)'])*100:+.2f} percentage points; annualized return {(cv['Annualized return']-baseline['Annualized return'])*100:+.2f} percentage points.")
+    st.subheader('Portfolio Drawdowns')
     underwater = drawdown.rename_axis('Date').reset_index().melt('Date', var_name='Portfolio', value_name='Drawdown')
     st.altair_chart(alt.Chart(underwater).mark_line().encode(x='Date:T', y=alt.Y('Drawdown:Q', axis=alt.Axis(format='.0%'), title='Decline from prior portfolio peak'), color=color, tooltip=['Date:T','Portfolio:N',alt.Tooltip('Drawdown:Q',format='.2%')]).properties(height=300).interactive(), width='stretch')
-    st.caption('Zero means the portfolio has recovered its previous high. Deep troughs show capital loss; long stretches below zero show time spent waiting for recovery. Initial capital is included in the peak calculation.')
-    st.subheader('Did the portfolios protect capital on the same stress days?')
+    st.caption('Drawdown measures the decline from the previous portfolio peak. Zero indicates a new or recovered peak; periods below zero show the duration of recovery. The peak calculation includes initial capital.')
+    st.subheader('Performance on Common Stress Dates')
     stress = common_stress_days(daily)
     order = [d.strftime('%Y-%m-%d') for d in stress.index]
     cells = stress.reset_index().melt('Date', var_name='Portfolio', value_name='Daily return')
@@ -62,20 +62,20 @@ def render_portfolio(returns, alpha):
     heat = alt.Chart(cells).mark_rect().encode(x=alt.X('Portfolio:N', sort=NAMES, title=None, axis=alt.Axis(labelAngle=0)), y=alt.Y('Date:N', sort=order, title=None), color=alt.Color('Daily return:Q', scale=alt.Scale(domain=[-scale,0,scale], range=['#b91c1c','#f8fafc','#15803d']), legend=alt.Legend(format='.1%')), tooltip=['Date:N','Portfolio:N',alt.Tooltip('Daily return:Q',format='.2%')])
     text = heat.mark_text().encode(text=alt.Text('Daily return:Q',format='.2%'), color=alt.condition('abs(datum["Daily return"]) > '+str(scale*.55),alt.value('white'),alt.value('#111827')))
     st.altair_chart((heat + text).properties(height=330), width='stretch')
-    st.caption('The ten worst equal-weight days define one common stress set, ordered from worst to less severe. Each cell is that strategy’s return on that exact date; no strategy gets to choose its own comparison days.')
-    st.subheader('Which holdings changed relative to equal weight?')
+    st.caption('Stress dates are the ten largest daily losses for the Equal Weight benchmark. Each cell shows the portfolio return on the same date, ordered by benchmark loss severity.')
+    st.subheader('Asset Allocation Relative to Equal Weight')
     active = weights[['Min Variance','Min CVaR']].subtract(weights['Equal Weight'], axis=0)
     active.index = active.index.str.replace('.NS','',regex=False)
     active = active.rename_axis('Stock').reset_index().melt('Stock',var_name='Portfolio',value_name='Active weight')
     bars = alt.Chart(active).mark_bar().encode(y=alt.Y('Stock:N', sort=weights.index.str.replace('.NS','',regex=False).tolist()), x=alt.X('Active weight:Q', axis=alt.Axis(format='+.0%'), title='Allocation change vs equal weight'), color=color, tooltip=['Stock:N','Portfolio:N',alt.Tooltip('Active weight:Q',format='+.2%')])
     st.altair_chart(bars.encode(yOffset=alt.YOffset('Portfolio:N', sort=NAMES[1:])).properties(height=440), width='stretch')
-    st.caption('Right of zero means overweight; left means underweight. Equal weight is the zero reference, so identical baseline bars are omitted. Each asset has a 30% weight cap.')
-    with st.expander('Full performance scorecard and allocation weights'):
+    st.caption('Active weights are allocation differences from the Equal Weight benchmark. Positive values indicate overweight positions; negative values indicate underweight positions. Each stock is capped at 30% of portfolio weight.')
+    with st.expander('Performance Metrics and Portfolio Weights'):
         percent_cols = [c for c in metrics if c != 'Effective holdings']
         st.dataframe(metrics.style.format({**{c:'{:.2%}' for c in percent_cols}, 'Effective holdings':'{:.1f}'}))
         st.caption('Effective holdings = 1 / sum(weight²): concentration expressed as an equivalent number of equally weighted positions. Return and volatility use 252 sessions/year.')
         st.dataframe(weights.style.format('{:.1%}'))
-    with st.expander('Compounded growth of 100 starting units'):
+    with st.expander('Cumulative Portfolio Growth (Base 100)'):
         growth = (wealth*100).rename_axis('Date').reset_index().melt('Date',var_name='Portfolio',value_name='Wealth')
         st.altair_chart(alt.Chart(growth).mark_line().encode(x='Date:T', y=alt.Y('Wealth:Q',title='Value of 100 initial units'), color=color, tooltip=['Date:T','Portfolio:N',alt.Tooltip('Wealth:Q',format='.1f')]).interactive(), width='stretch')
     st.caption('Returns aggregate constituent simple returns before compounding. No transaction costs, taxes or market impact. The existing optimization fits log-return scenarios, a small-return approximation; reported performance uses realized simple returns. All displayed results are retrospective.')
