@@ -61,7 +61,7 @@ def render_v1_explanation(asset):
 def render_comparison(asset, alpha):
     if not (ROOT/'headline_summary.csv').exists():
         return
-    st.subheader('V1 → V2: did the changes help?')
+    st.subheader('Model performance comparison')
     summary = pd.read_csv(ROOT/'headline_summary.csv')
     summary = summary[summary.Alpha == alpha].copy()
     for column in ['CoveragePasses','IndependencePasses','BothPasses']:
@@ -71,11 +71,6 @@ def render_comparison(asset, alpha):
         'MeanBreachRate':'Breaches (%)','MeanPinball':'Forecast loss ↓','MeanVaR':'Mean VaR','Governance':'Model assessment'}), hide_index=True)
     st.caption(f'Expected breaches: {100*(1-alpha):g}%. Lower forecast loss is better. Pass means p > 0.05, not proof of safety. Every version uses the same dates after a 250-session calibration warm-up.')
     st.info('Retrospective research comparison: V1 results influenced the V2 design. Independent future testing and separate expected-shortfall validation are still needed.')
-    if 'Pooled hybrid V2' in summary.Version.values:
-        raw_score = summary.set_index('Version').loc['Pooled hybrid V2']
-        cal_score = summary.set_index('Version').loc['V2 + calibration']
-        if cal_score.MeanPinball > raw_score.MeanPinball:
-            st.warning('Calibration improves some coverage results but increases forecast loss here. The pooled model without calibration remains a separate candidate; adding a buffer is not automatically an improvement.')
     scores = pd.read_csv(ROOT/'version_comparison.csv')
     selected = scores[(scores.Ticker == asset) & (scores.Alpha == alpha)]
     with st.expander('This stock: detailed test results'):
