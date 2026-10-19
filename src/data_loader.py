@@ -68,3 +68,44 @@ def download_and_clean_data(tickers=TICKERS, start=START_DATE, end=END_DATE, sav
 
 if __name__ == "__main__":
     download_and_clean_data()
+
+MARKET_DATA_PATH = 'data/raw/market_factors.csv'
+MACRO_TICKERS = {'vix': '^INDIAVIX', 'nifty': '^NSEI', 'fx': 'INR=X'}
+
+
+def download_market_factors(prices, save_path=MARKET_DATA_PATH, refresh=False):
+    """Adjusted OHLCV on the existing equity calendar; never overwrite prices.csv.
+
+    FX daily bars close after NSE: shift one observation before alignment.
+    Macro missing observations are filled for at most two equity sessions.
+    """
+    from pathlib import Path
+    if Path(save_path).exists() and not refresh:
+        cached = pd.read_csv(save_path, index_col=0, parse_dates=True)
+        return cached.reindex(prices.index)
+    start = (prices.index.min() - pd.Timedelta(days=10)).strftime('%Y-%m-%d')
+    end = (prices.index.max() + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+    symbols = list(prices.columns) + list(MACRO_TICKERS.values())
+    raw = yf.download(symbols, start=start, end=end, auto_adjust=True,
+                      progress=False, threads=False)
+    if raw.empty:
+        raise ValueError('Market download returned no observations; cached closes remain intact.')
+    result = pd.DataFrame(index=prices.index)
+    for ticker in prices.columns:
+        for field in ['Open', 'High', 'Low', 'Close', 'Volume']:
+            result[f'{ticker}_{field.lower()}'] = raw[(field, ticker)].reindex(prices.index)
+    for name, ticker in MACRO_TICKERS.items():
+        s = raw[('Close', ticker)].dropna()
+        if s.empty:
+            raise ValueError(f'Missing required macro series: {ticker}')
+        if name == 'fx':
+            s = s.shift(1)
+        # Align to the equity calendar, then apply the two-session fill limit.
+        result[name] = s.reindex(prices.index).ffill(limit=2)
+    required = [f'{t}_{f}' for t in prices.columns for f in ['open', 'high', 'low', 'close', 'volume']]
+    missing = [c for c in required if result[c].notna().sum() == 0]
+    if missing:
+        raise ValueError(f'Missing OHLCV columns: {missing}')
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
+    result.to_csv(save_path)
+    return result

@@ -5,55 +5,66 @@ from src.var_models import historical_var_cvar, normal_var_cvar, student_t_var_c
 from scipy.stats import t
 import warnings
 
-def kupiec_pof_test(exceptions: np.ndarray, alpha: float):
-    """
-    Kupiec Proportion of Failures (POF) test.
-    alpha is the confidence level (e.g. 0.99). The expected exception rate is p = 1 - alpha.
-    """
-    N = len(exceptions)
-    x = np.sum(exceptions)
-    p_exp = 1 - alpha
-    p_obs = x / N
-    
-    if x == 0 or x == N:
-        return np.nan
-        
-    lr = -2 * np.log(((1 - p_exp)**(N - x) * p_exp**x) / ((1 - p_obs)**(N - x) * p_obs**x))
-    p_value = 1 - chi2.cdf(lr, df=1)
-    return p_value
+def coverage_statistics(exceptions, alpha):
+    from scipy.special import xlogy
+    e = np.asarray(exceptions)
+    if e.ndim != 1 or len(e) == 0 or not 0 < alpha < 1 or not np.isin(e, [0, 1]).all():
+        raise ValueError("Nonempty binary exceptions and alpha in (0,1) required")
+    e = e.astype(int)
+    n, x = len(e), e.sum()
+    def ll(success, total, prob):
+        return xlogy(success, prob) + xlogy(total - success, 1 - prob)
+    lr_pof = max(0., float(2 * (ll(x, n, x/n) - ll(x, n, 1-alpha))))
+    lr_ind = np.nan
+    if n > 1:
+        counts = np.zeros((2, 2), dtype=int)
+        np.add.at(counts, (e[:-1], e[1:]), 1)
+        totals = counts.sum(axis=1)
+        # No transitions from one state: independence is not identifiable.
+        if (totals > 0).all():
+            probs = counts[:, 1] / totals
+            pooled = counts[:, 1].sum() / totals.sum()
+            lr_ind = max(0., float(2 * (sum(ll(counts[i, 1], totals[i], probs[i]) for i in (0, 1))
+                                      - ll(counts[:, 1].sum(), totals.sum(), pooled))))
+    lr_cc = lr_pof + lr_ind
+    return {"LR POF": lr_pof, "Kupiec p-value": chi2.sf(lr_pof, 1),
+            "LR Independence": lr_ind, "Christoffersen p-value": chi2.sf(lr_ind, 1),
+            "LR Conditional Coverage": lr_cc, "Conditional Coverage p-value": chi2.sf(lr_cc, 2)}
 
-def christoffersen_test(exceptions: np.ndarray):
-    """
-    Christoffersen independence test.
-    """
-    T00, T01, T10, T11 = 0, 0, 0, 0
-    for i in range(1, len(exceptions)):
-        if exceptions[i-1] == 0 and exceptions[i] == 0:
-            T00 += 1
-        elif exceptions[i-1] == 0 and exceptions[i] == 1:
-            T01 += 1
-        elif exceptions[i-1] == 1 and exceptions[i] == 0:
-            T10 += 1
-        elif exceptions[i-1] == 1 and exceptions[i] == 1:
-            T11 += 1
-            
-    if T00 + T01 == 0 or T10 + T11 == 0:
-        return np.nan
-        
-    pi_01 = T01 / (T00 + T01)
-    pi_11 = T11 / (T10 + T11)
-    pi = (T01 + T11) / (T00 + T01 + T10 + T11)
-    
-    # Handle 0 probabilities to avoid log(0)
-    def log_term(p, k):
-        return k * np.log(p) if p > 0 and k > 0 else 0
-        
-    term1 = log_term(1 - pi, T00 + T10) + log_term(pi, T01 + T11)
-    term2 = log_term(1 - pi_01, T00) + log_term(pi_01, T01) + log_term(1 - pi_11, T10) + log_term(pi_11, T11)
-    
-    lr = -2 * (term1 - term2)
-    p_value = 1 - chi2.cdf(lr, df=1)
-    return p_value
+
+def kupiec_pof_test(exceptions, alpha):
+    return coverage_statistics(exceptions, alpha)["Kupiec p-value"]
+
+
+def christoffersen_test(exceptions):
+    return coverage_statistics(exceptions, .99)["Christoffersen p-value"]
+
+
+def evaluate_forecasts(losses, var, cvar=None, alpha=.99):
+    """Common evaluator for baseline and external date-indexed ML forecasts."""
+    from src.numerical_var import pinball_loss
+    for series in (losses, var):
+        if not series.index.is_unique or not series.index.is_monotonic_increasing:
+            raise ValueError("Forecast evaluation requires unique chronological dates")
+    frame = pd.concat({"loss": losses, "var": var}, axis=1)
+    if cvar is not None:
+        frame["cvar"] = cvar
+    frame = frame.replace([np.inf, -np.inf], np.nan).dropna()
+    if frame.empty:
+        raise ValueError("No aligned finite forecasts to evaluate")
+    e = (frame.loss > frame['var']).astype(int)
+    out = coverage_statistics(e, alpha)
+    out.update({"Exceptions": int(e.sum()), "Exception Rate (%)": 100 * e.mean(),
+                "Valid Days": len(e), "Pinball Loss": float(pinball_loss(frame.loss - frame['var'], alpha).mean()),
+                "Calibration Error": abs(e.mean() - (1-alpha)),
+                "Mean VaR": frame['var'].mean(),
+                "Breach Severity": (frame.loss - frame['var'])[e.astype(bool)].mean(),
+                "Basel (Last 250)": basel_traffic_light(int(e.iloc[-250:].sum())) if alpha == .99 and len(e) >= 250 else "N/A",
+                "ES Ratio": np.nan})
+    if cvar is not None and e.sum():
+        denom = frame.loc[e.astype(bool), 'cvar'].mean()
+        out['ES Ratio'] = frame.loc[e.astype(bool), 'loss'].mean() / denom if denom else np.nan
+    return out
 
 def basel_traffic_light(exceptions: int):
     """
@@ -71,6 +82,9 @@ def backtest_model(returns: pd.Series, window: int = 250, alpha: float = 0.99, m
     Rolling backtest engine.
     method: "historical", "normal", "student_t"
     """
+    returns = returns.dropna().sort_index()
+    if window < 2 or len(returns) <= window:
+        raise ValueError("Need more observations than the rolling window")
     losses = -returns
     N = len(returns)
     
@@ -102,42 +116,7 @@ def backtest_model(returns: pd.Series, window: int = 250, alpha: float = 0.99, m
         var_preds[i] = var
         cvar_preds[i] = cvar
         
-    realized_losses = losses.values
-    
-    # Filter only days where predictions exist
-    valid_idx = ~np.isnan(var_preds)
-    var_preds_valid = var_preds[valid_idx]
-    cvar_preds_valid = cvar_preds[valid_idx]
-    realized_losses_valid = realized_losses[valid_idx]
-    
-    exceptions = (realized_losses_valid > var_preds_valid).astype(int)
-    
-    # Kupiec & Christoffersen
-    kupiec_p = kupiec_pof_test(exceptions, alpha)
-    christoffersen_p = christoffersen_test(exceptions)
-    
-    # ES Check (average realized loss on exception days vs avg predicted CVaR on those days)
-    exc_idx = exceptions == 1
-    if np.sum(exc_idx) > 0:
-        es_ratio = realized_losses_valid[exc_idx].mean() / cvar_preds_valid[exc_idx].mean()
-    else:
-        es_ratio = np.nan
-        
-    # Basel (if window is exactly 250, typically applied to 1 year back. 
-    # Here we just apply it to rolling 250 days over the whole series and report avg exceptions per 250 days)
-    total_exceptions = np.sum(exceptions)
-    years = len(var_preds_valid) / 250
-    exceptions_per_year = total_exceptions / years if years > 0 else 0
-    basel = basel_traffic_light(exceptions_per_year)
-    
-    results = {
-        "Exceptions": total_exceptions,
-        "Exception Rate (%)": total_exceptions / len(var_preds_valid) * 100,
-        "Kupiec p-value": kupiec_p,
-        "Christoffersen p-value": christoffersen_p,
-        "ES Ratio": es_ratio,
-        "Basel (Avg/yr)": basel,
-        "Valid Days": len(var_preds_valid)
-    }
-    
-    return results, pd.Series(var_preds, index=returns.index), pd.Series(cvar_preds, index=returns.index)
+    var_series = pd.Series(var_preds, index=returns.index)
+    cvar_series = pd.Series(cvar_preds, index=returns.index)
+    results = evaluate_forecasts(losses, var_series, cvar_series, alpha)
+    return results, var_series, cvar_series

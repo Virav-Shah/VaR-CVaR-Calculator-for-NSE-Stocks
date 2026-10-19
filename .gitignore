@@ -47,3 +47,11 @@ htmlcov/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+.venv-mps/
+results/models/
+results/ml/
+
+results/ml_v2/
+results/models_v2/
+/data/raw/market_factors.csv

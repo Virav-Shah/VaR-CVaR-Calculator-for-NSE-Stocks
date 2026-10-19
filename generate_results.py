@@ -3,6 +3,20 @@ Generate all results (figures + tables) for the VaR & CVaR project.
 Run: python generate_results.py
 """
 import os
+import sys
+
+if __name__ == "__main__" and "--hybrid-only" in sys.argv:
+    sys.argv.remove("--hybrid-only")
+    from run_hybrid import main
+    main()
+    raise SystemExit(0)
+
+# ML-only mode avoids regenerating expensive legacy figures.
+if __name__ == "__main__" and "--ml-only" in sys.argv:
+    sys.argv.remove("--ml-only")
+    from run_ml import main
+    main()
+    raise SystemExit(0)
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -249,3 +263,18 @@ print("ALL RESULTS GENERATED SUCCESSFULLY!")
 print(f"  Figures: {FIGURES_DIR}/")
 print(f"  Tables:  {TABLES_DIR}/")
 print("=" * 60)
+
+# Explicit opt-in: existing baseline invocation remains unchanged.
+if "--with-ml" in sys.argv:
+    from src.ml_pipeline import run_ml_pipeline
+    ml_scores = run_ml_pipeline(prices)
+    ml_scores.to_csv(os.path.join(TABLES_DIR, "backtest_results.csv"), index=False)
+    pd.read_csv("results/ml/var_cvar_comparison.csv").to_csv(os.path.join(TABLES_DIR, "var_cvar_comparison.csv"), index=False)
+    ml_scores.groupby(["Alpha", "Method"]).agg(
+        Assets=("Ticker", "count"),
+        Mean_Pinball_Loss=("Pinball Loss", "mean"),
+        Mean_Exception_Rate_Percent=("Exception Rate (%)", "mean"),
+        Mean_VaR=("Mean VaR", "mean"),
+        Kupiec_Passes=("Kupiec p-value", lambda x: (x > .05).sum()),
+        Independence_Passes=("Christoffersen p-value", lambda x: (x > .05).sum()),
+    ).reset_index().to_csv(os.path.join(TABLES_DIR, "backtest_summary.csv"), index=False)

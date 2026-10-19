@@ -25,7 +25,7 @@ def min_variance_portfolio(returns: pd.DataFrame, w_max: float = 0.30):
     bounds = [(0, w_max) for _ in range(M)]
     w0 = np.ones(M) / M
     
-    res = opt.minimize(objective, w0, method='SLSQP', bounds=bounds, constraints=cons)
+    res = opt.minimize(objective, w0, method='SLSQP', bounds=bounds, constraints=cons, options={'ftol': 1e-12, 'maxiter': 1000})
     if res.success:
         return res.x
     return w0
@@ -52,7 +52,7 @@ def out_of_sample_test(returns: pd.DataFrame, train_end="2015-12-31", alpha=0.99
     Train weights on pre-2016 data, evaluate realized CVaR on post-2015 data.
     """
     train = returns[:train_end]
-    test = returns[train_end:]
+    test = returns.loc[returns.index > pd.Timestamp(train_end)]
     
     if len(train) == 0 or len(test) == 0:
         return None

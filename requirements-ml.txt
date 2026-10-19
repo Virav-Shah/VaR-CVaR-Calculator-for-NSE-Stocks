@@ -1,0 +1,7 @@
+-r requirements.txt
+scikit-learn>=1.5,<2
+lightgbm>=4.5,<5
+optuna>=4,<6
+shap>=0.46,<1
+joblib>=1.4,<2
+numpy>=2,<3
