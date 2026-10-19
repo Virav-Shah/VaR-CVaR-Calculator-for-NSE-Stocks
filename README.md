@@ -57,7 +57,9 @@ Training/model artifacts stay in ignored `results/ml/`, `results/models/`, `resu
 
 Five tabs cover market regimes, risk forecasts, backtesting, Explainable AI and portfolio analysis. The VaR/CVaR tab leads with the matched V1/V2 comparison, actual losses and breaches. Explainable AI shows the top five feature contributions for both V1 and V2, using saved SHAP values without requiring the SHAP training library on the web server. Portfolio charts show the return/tail-loss trade-off, drawdowns, losses on common stress dates and allocation changes from equal weights.
 
-For Streamlit Community Cloud, select repository `Virav-Shah/nse-market-risk-analytics`, branch `main`, and entry point `app.py`. Runtime dependencies are in `requirements.txt`; the bundled dashboard runs without offline training or the Mac MPS environment. If the existing deployment retains the former repository name, reconnect it to the renamed repository in Streamlit settings.
+For Streamlit Community Cloud, create a deployment from repository `Virav-Shah/nse-market-risk-analytics`, branch `main`, and entry point `app.py`. Runtime dependencies are in `requirements.txt`; the bundled dashboard runs without offline training or the Mac MPS environment.
+
+**After the repository rename, the existing Streamlit deployment may remain tied to the old GitHub coordinates. Connecting your GitHub account again does not migrate that deployment. Create a fresh deployment from the renamed repository.** Follow the [deployment recovery steps](docs/STREAMLIT_DEPLOYMENT.md); Streamlit documents this limitation in its [repository rename guidance](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app/rename-your-app).
 
 To run only the dashboard locally:
 
