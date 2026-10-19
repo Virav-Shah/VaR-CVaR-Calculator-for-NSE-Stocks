@@ -149,7 +149,8 @@ with tabs[4]:
     if not (ready or v2_ready):
         missing()
     else:
-        explanation_version = st.selectbox('Explanation model', ['Pooled hybrid V2 (calibrated)', 'LightGBM V1'] if v2_ready else ['LightGBM V1'])
+        explanation_options = (['Pooled hybrid V2 (calibrated)'] if v2_ready else []) + (['LightGBM V1'] if ready else [])
+        explanation_version = st.selectbox('Explanation model', explanation_options)
         if explanation_version.startswith('Pooled'):
             from src.hybrid_dashboard import render_explanation
             render_explanation(asset)

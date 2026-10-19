@@ -43,10 +43,12 @@ def render_comparison(asset, alpha):
     with st.expander('This stock: detailed test results'):
         st.dataframe(selected, hide_index=True)
     folder = ROOT/asset.replace('.NS','')
-    if not (folder/'hybrid_calibrated.csv').exists():
-        st.caption('Saved V1 calibration experiment is ready; pooled V2 training is still pending.')
+    if not (folder/'hybrid_calibrated.csv.gz').exists():
+        st.caption('Forecast history is unavailable for this asset.')
         return
     pred = pd.read_csv(folder/'hybrid_calibrated.csv.gz',index_col=0,parse_dates=True).dropna(subset=[f'q_{alpha:g}'])
+    window = st.selectbox('Forecast comparison window',[250,750,len(pred)],format_func=lambda n:f'Last {n:,} sessions',key='hybrid_window')
+    dates = pred.tail(window).index
     v1_path = Path('results/ml')/asset.replace('.NS','')/'lightgbm_predictions.csv'
     baseline_path = Path('results/ml')/asset.replace('.NS','')/f'student_t_{alpha:g}_predictions.csv'
     if v1_path.exists() and baseline_path.exists():
@@ -57,8 +59,6 @@ def render_comparison(asset, alpha):
         v1 = pd.read_csv(folder/'v1_forecasts.csv.gz',index_col=0,parse_dates=True)
         baseline = pd.read_csv(folder/'student_t_forecasts.csv.gz',index_col=0,parse_dates=True)
         v1_var, baseline_var = v1.loc[dates,f'q_{alpha:g}'], baseline.loc[dates,f'VaR_{alpha:g}']
-    window = st.selectbox('Forecast comparison window',[250,750,len(pred)],format_func=lambda n:f'Last {n:,} sessions',key='hybrid_window')
-    dates = pred.tail(window).index
     lines = pd.DataFrame({'Student-t':baseline_var,'V1':v1_var,'V2 pooled':pred.loc[dates,f'raw_q_{alpha:g}'],'V2 calibrated':pred.loc[dates,f'q_{alpha:g}']}).rename_axis('Date').reset_index().melt('Date',var_name='Model',value_name='VaR')
     actual = pred.loc[dates,['Loss',f'q_{alpha:g}']].rename_axis('Date').reset_index()
     actual['Breach'] = actual.Loss > actual[f'q_{alpha:g}']

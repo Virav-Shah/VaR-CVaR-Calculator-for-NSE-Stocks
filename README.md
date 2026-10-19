@@ -1,4 +1,8 @@
-# NSE Market Risk: Statistics → Explainable ML
+# NSE Market Risk Analytics
+
+Explainable machine learning for stock risk forecasting and portfolio analysis.
+
+[GitHub repository](https://github.com/Virav-Shah/nse-market-risk-analytics) · [Streamlit application](https://mkxk2evmghkv5rbpugw99x.streamlit.app/)
 
 A reproducible study of next-day downside risk for ten Indian stocks. It compares Student-t with separate-stock LightGBM (V1), then tests a pooled statistical/ML hybrid (V2), rolling calibration and explicit tail extrapolation.
 
@@ -47,13 +51,20 @@ streamlit run app.py
 
 `python generate_results.py --hybrid-only --trials 10` is an equivalent entry point. The isolated environment supports PyTorch MPS; LightGBM uses CPU because this implementation does not run on Apple MPS. No neural network is added merely to use the GPU.
 
-Training/model artifacts stay in ignored `results/ml/`, `results/models/`, `results/ml_v2/` and `results/models_v2/`. A compact, compressed dashboard bundle with forecast history and SHAP explanations is versioned under `results/dashboard_v2/`; it lets Streamlit work from a clean clone without shipping trained model binaries. Training uses cached market data. A clean checkout needs V1 generation first; package versions are pinned in `requirements-mps.lock.txt`.
+Training/model artifacts stay in ignored `results/ml/`, `results/models/`, `results/ml_v2/` and `results/models_v2/`. A compact, compressed dashboard bundle with forecast history and SHAP explanations is versioned under `results/dashboard_v2/`; it lets Streamlit work from a clean clone without shipping trained model binaries. Retraining from a clean checkout needs V1 generation first; package versions for the Mac training environment are pinned in `requirements-mps.lock.txt`.
 
 ## Dashboard
 
 Six tabs cover market regimes, risk forecasts, backtesting, training, explanations and portfolios. The VaR/CVaR tab leads with the matched V1/V2 comparison, actual losses and breaches. The XAI tab retains V1 and offers the V2 top-five feature view. Portfolio charts show the return/tail-loss trade-off, drawdowns, losses on common stress dates and allocation changes from equal weights.
 
-The existing hosted demo has not been updated by this local work. To inspect this version, run the local app.
+For Streamlit Community Cloud, select repository `Virav-Shah/nse-market-risk-analytics`, branch `main`, and entry point `app.py`. Runtime dependencies are in `requirements.txt`; the bundled dashboard runs without offline training or the Mac MPS environment. If the existing deployment retains the former repository name, reconnect it to the renamed repository in Streamlit settings.
+
+To run only the dashboard locally:
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
 
 ## Validation
 
