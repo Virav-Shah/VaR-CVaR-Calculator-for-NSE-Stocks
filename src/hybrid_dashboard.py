@@ -8,7 +8,7 @@ ROOT = Path('results/dashboard_v2')
 FEATURE_LABELS = {
     'student_t_var_0.95_norm':'Student-t 95% limit',
     'student_t_var_0.99_norm':'Student-t 99% limit',
-    'vix_z_63':'Market fear (VIX)', 'vix_change_5':'Change in VIX',
+    'vix_z_63':'India VIX (relative)', 'vix_change_5':'India VIX 5-day change',
     'volume_z_21':'Trading volume', 'vol_ratio':'Short/long volatility',
     'vol_5':'5-day volatility', 'vol_21':'21-day volatility', 'vol_63':'63-day volatility',
     'parkinson_21':'Intraday price range', 'downside_21':'Recent downside risk',
@@ -27,6 +27,8 @@ def render_top_features(row):
     chart['Driver'] = chart.Feature.map(lambda f:FEATURE_LABELS.get(f,f.replace('stock_','Stock: ')))
     chart['Effect'] = chart.Contribution.map(lambda x:'Raises risk limit' if x>=0 else 'Lowers risk limit')
     st.altair_chart(alt.Chart(chart).mark_bar().encode(y=alt.Y('Driver:N',sort=chart.Driver.tolist(),title=None,axis=alt.Axis(labelLimit=140)),x=alt.X('Contribution:Q',axis=alt.Axis(format='.2%'),title='Contribution to daily VaR'),color=alt.Color('Effect:N',scale=alt.Scale(domain=['Raises risk limit','Lowers risk limit'],range=['#c62828','#1976d2'])),tooltip=['Driver:N','Feature:N',alt.Tooltip('Contribution:Q',format='.3%')]).properties(height=240).configure_legend(orient='bottom',columns=1),width='stretch')
+    if any(feature.startswith('vix_') for feature in top):
+        st.caption('India VIX (Volatility Index) reflects expected NIFTY 50 price swings over the next 30 calendar days, based on option prices and quoted as an annualised percentage. Higher readings mean larger expected swings, without predicting direction. The relative feature compares log VIX with its 63-session history; the change feature measures its five-session log change. [NSE definition](https://www.nseindia.com/static/products-services/indices-indiavix-index).')
     return top
 
 

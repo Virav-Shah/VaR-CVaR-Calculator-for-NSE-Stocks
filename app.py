@@ -69,14 +69,14 @@ with tabs[0]:
         sns.heatmap(features.corr(), cmap='RdBu_r', center=0, ax=ax)
         show(fig)
         st.line_chart(features[['vol_5', 'vol_21', 'vol_63']])
-        st.caption('VIX is standardized for the model; the overlay below shows observed VIX on a separate axis.')
+        st.caption('India VIX (Volatility Index) reflects expected NIFTY 50 volatility over the next 30 calendar days, based on option prices. Higher readings mean larger expected price swings, without predicting direction. The chart shows the observed index as an annualised percentage; the model uses its relative level and five-session change. [NSE definition](https://www.nseindia.com/static/products-services/indices-indiavix-index).')
         factors = pd.read_csv(MARKET_DATA_PATH, index_col=0, parse_dates=True)
         fig, ax = plt.subplots(figsize=(12, 3))
         ax.plot(features.index, features.vol_21, label='21-session volatility')
         ax.set_ylabel('Realized volatility')
         twin = ax.twinx()
         twin.plot(factors.index, factors.vix, color='orange', alpha=.6)
-        twin.set_ylabel('India VIX')
+        twin.set_ylabel('India VIX (annualised %)')
         show(fig)
 with tabs[1]:
     if v2_ready:
