@@ -9,7 +9,7 @@ The notebook directory is a placeholder. Existing cached closing prices are
 preserved. Generated artifacts and virtual environments are not source code.
 
 The original app was a single page, rather than the four-tab implementation
-assumed by the proposal. It now has six tabs. Static baseline generation remains
+assumed by the proposal. It now has five tabs, including Explainable AI and portfolio analysis. Training details are documented here rather than in a separate lifecycle tab. Static baseline generation remains
 available with the existing command.
 
 Corrections to the proposal and original implementation:

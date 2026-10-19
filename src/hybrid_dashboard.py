@@ -20,6 +20,44 @@ FEATURE_LABELS = {
 }
 
 
+def render_top_features(row):
+    """Plot saved feature contributions without loading a training library."""
+    top = row.abs().nlargest(5).index
+    chart = row.loc[top].rename('Contribution').rename_axis('Feature').reset_index()
+    chart['Driver'] = chart.Feature.map(lambda f:FEATURE_LABELS.get(f,f.replace('stock_','Stock: ')))
+    chart['Effect'] = chart.Contribution.map(lambda x:'Raises risk limit' if x>=0 else 'Lowers risk limit')
+    st.altair_chart(alt.Chart(chart).mark_bar().encode(y=alt.Y('Driver:N',sort=chart.Driver.tolist(),title=None,axis=alt.Axis(labelLimit=140)),x=alt.X('Contribution:Q',axis=alt.Axis(format='.2%'),title='Contribution to daily VaR'),color=alt.Color('Effect:N',scale=alt.Scale(domain=['Raises risk limit','Lowers risk limit'],range=['#c62828','#1976d2'])),tooltip=['Driver:N','Feature:N',alt.Tooltip('Contribution:Q',format='.3%')]).properties(height=240).configure_legend(orient='bottom',columns=1),width='stretch')
+    return top
+
+
+def load_v1_explanation(asset, root=ROOT):
+    folder = root/asset.replace('.NS','')
+    pred = pd.read_csv(folder/'v1_forecasts.csv.gz',index_col=0,parse_dates=True)
+    values = pd.read_csv(folder/'v1_shap_values.csv.gz',index_col=0,parse_dates=True)
+    meta = pd.read_csv(folder/'v1_shap_metadata.csv.gz',index_col=0,parse_dates=True)
+    if not (pred.index.equals(values.index) and pred.index.equals(meta.index)):
+        raise ValueError('V1 forecasts and explanations must cover identical dates')
+    return pred, values, meta
+
+
+def render_v1_explanation(asset):
+    pred, values, meta = load_v1_explanation(asset)
+    preferred = list(pred.nlargest(10,'Loss').index)
+    preferred += [d for d in pred.index[pred.Loss > pred['q_0.99']] if d not in preferred]
+    options = preferred + [d for d in pred.index if d not in preferred]
+    day = st.selectbox('Inspect a crash / breach date (99% VaR)',options,format_func=lambda d:d.strftime('%Y-%m-%d'),key='v1_crash_date')
+    row, m = values.loc[day], meta.loc[day]
+    top = render_top_features(row)
+    st.caption('Top five contributions to V1’s 99% risk limit. Positive values raise the forecast; negative values lower it. These describe model behavior, not the causes of a market crash.')
+    c1,c2 = st.columns(2)
+    c1.metric('V1 risk limit',f'{pred.loc[day,"q_0.99"]:.2%}')
+    c2.metric('Actual loss',f'{pred.loc[day,"Loss"]:.2%}')
+    with st.expander('Reconcile the complete prediction'):
+        components = pd.Series({'Model starting value':m.Base,'Top five feature contributions':row.loc[top].sum(),'Other feature contributions':row.drop(top).sum()})
+        st.dataframe(components.rename('Contribution').to_frame().style.format('{:+.3%}'))
+        st.caption(f'Components sum to {components.sum():.3%}; saved final VaR is {m.Prediction:.3%}. Model block {int(m.Block)}. Quantile sorting selected the {m.SourceQuantile:.1%} source model on this date.')
+
+
 def render_comparison(asset, alpha):
     if not (ROOT/'headline_summary.csv').exists():
         return
@@ -30,7 +68,7 @@ def render_comparison(asset, alpha):
         summary[column] = summary[column].astype(str) + '/' + summary.Assets.astype(str)
     st.dataframe(summary[['Version','CoveragePasses','IndependencePasses','BothPasses','MeanBreachRate','MeanPinball','MeanVaR','Governance']].rename(columns={
         'CoveragePasses':'Coverage passes','IndependencePasses':'Independence passes','BothPasses':'Both pass',
-        'MeanBreachRate':'Breaches (%)','MeanPinball':'Forecast loss ↓','MeanVaR':'Mean VaR'}), hide_index=True)
+        'MeanBreachRate':'Breaches (%)','MeanPinball':'Forecast loss ↓','MeanVaR':'Mean VaR','Governance':'Model assessment'}), hide_index=True)
     st.caption(f'Expected breaches: {100*(1-alpha):g}%. Lower forecast loss is better. Pass means p > 0.05, not proof of safety. Every version uses the same dates after a 250-session calibration warm-up.')
     st.info('Retrospective research comparison: V1 results influenced the V2 design. Independent future testing and separate expected-shortfall validation are still needed.')
     if 'Pooled hybrid V2' in summary.Version.values:
@@ -81,11 +119,7 @@ def render_explanation(asset):
     options = preferred + [d for d in pred.index if d not in preferred]
     day = st.selectbox('Inspect a crash / breach date (99% VaR)',options,format_func=lambda d:d.strftime('%Y-%m-%d'),key='v2_crash_date')
     row = values.loc[day]
-    top = row.abs().nlargest(5).index
-    chart = row.loc[top].rename('Contribution').rename_axis('Feature').reset_index()
-    chart['Driver'] = chart.Feature.map(lambda f:FEATURE_LABELS.get(f,f.replace('stock_','Stock: ')))
-    chart['Effect'] = chart.Contribution.map(lambda x:'Raises risk limit' if x>=0 else 'Lowers risk limit')
-    st.altair_chart(alt.Chart(chart).mark_bar().encode(y=alt.Y('Driver:N',sort=chart.Driver.tolist(),title=None,axis=alt.Axis(labelLimit=140)),x=alt.X('Contribution:Q',axis=alt.Axis(format='.2%'),title='Contribution to daily VaR'),color=alt.Color('Effect:N',scale=alt.Scale(domain=['Raises risk limit','Lowers risk limit'],range=['#c62828','#1976d2'])),tooltip=['Driver:N','Feature:N',alt.Tooltip('Contribution:Q',format='.3%')]).properties(height=240).configure_legend(orient='bottom',columns=1),width='stretch')
+    top = render_top_features(row)
     st.caption('Top five contributions to the 99% residual model. These explain the model output, not the causes of a market crash. Calibration and quantile ordering are shown separately below.')
     m = meta.loc[day]
     components = pd.Series({'Student-t starting limit':m.StudentBase,'Average AI adjustment':m.TreeBase,'Top five feature contributions':row.loc[top].sum(),'Other feature contributions':row.drop(top).sum(),'Raw quantile ordering':m.RawOrderAdjustment,'Calibration buffer':m.CalibrationBuffer,'Final quantile ordering':m.FinalOrderAdjustment})

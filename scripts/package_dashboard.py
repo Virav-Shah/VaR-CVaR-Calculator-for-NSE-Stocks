@@ -9,8 +9,18 @@ import pandas as pd
 
 
 def gzip_copy(source, destination):
-    with open(source, 'rb') as src, gzip.open(destination, 'wb', compresslevel=9) as dst:
+    with open(source, 'rb') as src, open(destination, 'wb') as output, gzip.GzipFile(filename='', mode='wb', fileobj=output, compresslevel=9, mtime=0) as dst:
         shutil.copyfileobj(src, dst)
+
+
+def package_v1_explanations(v1_root=Path('results/ml'), destination=Path('results/dashboard_v2')):
+    """Publish saved contributions so the web app does not need SHAP installed."""
+    for output in sorted(p for p in destination.iterdir() if p.is_dir()):
+        for filename in ('shap_values.csv', 'shap_metadata.csv'):
+            source = v1_root/output.name/filename
+            if not source.exists():
+                raise FileNotFoundError(f'Missing V1 explanation artifact: {source}')
+            gzip_copy(source, output/f'v1_{filename}.gz')
 
 
 def package(source=Path('results/ml_v2'), destination=Path('results/dashboard_v2')):
@@ -40,6 +50,7 @@ def package(source=Path('results/ml_v2'), destination=Path('results/dashboard_v2
         baseline.to_csv(output/'student_t_forecasts.csv')
         gzip_copy(output/'student_t_forecasts.csv', output/'student_t_forecasts.csv.gz')
         (output/'student_t_forecasts.csv').unlink()
+    package_v1_explanations(v1_root, destination)
     print(f'Packaged dashboard artifacts for {len(list(destination.glob("*/hybrid_calibrated.csv.gz")))} assets in {destination}', flush=True)
 
 

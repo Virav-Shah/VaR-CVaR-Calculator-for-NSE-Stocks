@@ -55,7 +55,7 @@ Training/model artifacts stay in ignored `results/ml/`, `results/models/`, `resu
 
 ## Dashboard
 
-Six tabs cover market regimes, risk forecasts, backtesting, training, explanations and portfolios. The VaR/CVaR tab leads with the matched V1/V2 comparison, actual losses and breaches. The XAI tab retains V1 and offers the V2 top-five feature view. Portfolio charts show the return/tail-loss trade-off, drawdowns, losses on common stress dates and allocation changes from equal weights.
+Five tabs cover market regimes, risk forecasts, backtesting, Explainable AI and portfolio analysis. The VaR/CVaR tab leads with the matched V1/V2 comparison, actual losses and breaches. Explainable AI shows the top five feature contributions for both V1 and V2, using saved SHAP values without requiring the SHAP training library on the web server. Portfolio charts show the return/tail-loss trade-off, drawdowns, losses on common stress dates and allocation changes from equal weights.
 
 For Streamlit Community Cloud, select repository `Virav-Shah/nse-market-risk-analytics`, branch `main`, and entry point `app.py`. Runtime dependencies are in `requirements.txt`; the bundled dashboard runs without offline training or the Mac MPS environment. If the existing deployment retains the former repository name, reconnect it to the renamed repository in Streamlit settings.
 
