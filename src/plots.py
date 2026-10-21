@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, t, probplot
 from statsmodels.graphics.tsaplots import plot_acf
+from matplotlib.ticker import PercentFormatter
 
 def plot_histogram_with_overlays(returns: pd.Series, ticker: str):
     """
@@ -29,16 +30,20 @@ def plot_qq(returns: pd.Series, ticker: str):
     """
     QQ plots against Normal and t.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    
-    # Normal QQ
-    probplot(returns, dist="norm", plot=axes[0])
-    axes[0].set_title(f"Normal Q-Q Plot ({ticker})")
-    
-    # t QQ
-    nu, _, _ = t.fit(returns)
-    probplot(returns, dist=t(nu), plot=axes[1])
-    axes[1].set_title(f"Student-t Q-Q Plot ({ticker}, df={nu:.2f})")
+    sample = returns.dropna()
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), layout='constrained', sharey=True)
+    fig.suptitle(f'Return distribution fit · {ticker}', fontsize=14)
+    nu, _, _ = t.fit(sample)
+    for ax, distribution, title in zip(axes, ['norm', t(nu)], ['Normal distribution', f'Student-t distribution (df = {nu:.2f})']):
+        (theoretical, observed), (slope, intercept, _) = probplot(sample, dist=distribution)
+        ax.scatter(theoretical, observed, s=9, alpha=.65, color='#1976d2', rasterized=True)
+        ax.plot(theoretical, slope * theoretical + intercept, color='#c62828', lw=1.5)
+        ax.set_title(title, fontsize=12, pad=10)
+        ax.set_xlabel('Theoretical quantile', fontsize=10)
+        ax.tick_params(labelsize=9)
+        ax.yaxis.set_major_formatter(PercentFormatter(xmax=1))
+        ax.grid(alpha=.15)
+    axes[0].set_ylabel('Observed daily log return (%)', fontsize=10)
     
     return fig
 
@@ -93,7 +98,12 @@ def plot_acf_returns_vs_squared(returns: pd.Series, ticker: str):
     """
     ACF of returns vs squared returns to show volatility clustering.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    plot_acf(returns.dropna(), ax=axes[0], title=f"ACF of Returns ({ticker})", lags=40)
-    plot_acf(returns.dropna()**2, ax=axes[1], title=f"ACF of Squared Returns ({ticker})", lags=40)
+    fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), layout='constrained', sharey=True)
+    fig.suptitle(f'Return persistence · {ticker}', fontsize=14)
+    for ax, sample, title in zip(axes, [returns.dropna(), returns.dropna()**2], ['Daily returns', 'Squared daily returns']):
+        plot_acf(sample, ax=ax, title=title, lags=40)
+        ax.set_title(title, fontsize=12, pad=10)
+        ax.set_xlabel('Lag (trading sessions)', fontsize=10)
+        ax.tick_params(labelsize=9)
+    axes[0].set_ylabel('Autocorrelation', fontsize=10)
     return fig

@@ -20,13 +20,32 @@ FEATURE_LABELS = {
 }
 
 
+def feature_contributions(row):
+    """Keep the five largest signed effects and aggregate all remaining effects."""
+    top = row.abs().nlargest(5).index
+    contributions = row.loc[top].copy()
+    if len(row) > len(top):
+        contributions.loc['other_features'] = row.drop(top).sum()
+    return contributions
+
+
+def render_prediction_breakdown(components, forecast):
+    """Display the full additive identity in the same units as the bars."""
+    st.markdown('**How the final risk limit is calculated**')
+    breakdown = (100 * components).rename('Log-loss percentage points').to_frame()
+    breakdown.loc['Final risk limit'] = 100 * forecast
+    st.dataframe(breakdown.style.format('{:+.3f}'), width='stretch')
+    st.caption(f'The entries above the final row add to {100 * components.sum():.3f} percentage points. The saved forecast is {forecast:.3%} daily log loss. These are changes to a risk limit, not shares of a total.')
+
+
 def render_top_features(row):
     """Plot saved feature contributions without loading a training library."""
     top = row.abs().nlargest(5).index
-    chart = row.loc[top].rename('Contribution').rename_axis('Feature').reset_index()
-    chart['Driver'] = chart.Feature.map(lambda f:FEATURE_LABELS.get(f,f.replace('stock_','Stock: ')))
-    chart['Effect'] = chart.Contribution.map(lambda x:'Raises risk limit' if x>=0 else 'Lowers risk limit')
-    st.altair_chart(alt.Chart(chart).mark_bar().encode(y=alt.Y('Driver:N',sort=chart.Driver.tolist(),title=None,axis=alt.Axis(labelLimit=140)),x=alt.X('Contribution:Q',axis=alt.Axis(format='.2%'),title='Contribution to daily VaR'),color=alt.Color('Effect:N',scale=alt.Scale(domain=['Raises risk limit','Lowers risk limit'],range=['#c62828','#1976d2'])),tooltip=['Driver:N','Feature:N',alt.Tooltip('Contribution:Q',format='.3%')]).properties(height=240).configure_legend(orient='bottom',columns=1),width='stretch')
+    chart = feature_contributions(row).mul(100).rename('ContributionPP').rename_axis('Feature').reset_index()
+    chart['Driver'] = chart.Feature.map(lambda f:FEATURE_LABELS.get(f, 'Other features (combined)' if f == 'other_features' else f.replace('stock_','Stock: ')))
+    chart['Effect'] = chart.ContributionPP.map(lambda x:'Raises risk limit' if x>=0 else 'Lowers risk limit')
+    st.altair_chart(alt.Chart(chart).mark_bar().encode(y=alt.Y('Driver:N',sort=chart.Driver.tolist(),title=None,axis=alt.Axis(labelLimit=220)),x=alt.X('ContributionPP:Q',axis=alt.Axis(format='+.2f'),title='Change in risk limit (log-loss percentage points)'),color=alt.Color('Effect:N',scale=alt.Scale(domain=['Raises risk limit','Lowers risk limit'],range=['#c62828','#1976d2'])),tooltip=['Driver:N','Feature:N',alt.Tooltip('ContributionPP:Q',title='Change (percentage points)',format='+.3f')]).properties(height=280).configure_legend(orient='bottom',columns=1),width='stretch')
+    st.caption('SHAP values are signed changes to the forecast, not percentages that should total 100%. For example, +0.30 percentage points raises a 4.00% risk limit to 4.30%. The five largest feature effects are shown individually; all remaining features are combined in the last bar.')
     if any(feature.startswith('vix_') for feature in top):
         st.caption('India VIX (Volatility Index) reflects expected NIFTY 50 price swings over the next 30 calendar days, based on option prices and quoted as an annualised percentage. Higher readings mean larger expected swings, without predicting direction. The relative feature compares log VIX with its 63-session history; the change feature measures its five-session log change. [NSE definition](https://www.nseindia.com/static/products-services/indices-indiavix-index).')
     return top
@@ -54,10 +73,9 @@ def render_v1_explanation(asset):
     c1,c2 = st.columns(2)
     c1.metric('V1 risk limit',f'{pred.loc[day,"q_0.99"]:.2%}')
     c2.metric('Actual loss',f'{pred.loc[day,"Loss"]:.2%}')
-    with st.expander('Reconcile the complete prediction'):
-        components = pd.Series({'Model starting value':m.Base,'Top five feature contributions':row.loc[top].sum(),'Other feature contributions':row.drop(top).sum()})
-        st.dataframe(components.rename('Contribution').to_frame().style.format('{:+.3%}'))
-        st.caption(f'Components sum to {components.sum():.3%}; saved final VaR is {m.Prediction:.3%}. Model block {int(m.Block)}. Quantile sorting selected the {m.SourceQuantile:.1%} source model on this date.')
+    components = pd.Series({'Model starting value':m.Base,'Top five feature contributions':row.loc[top].sum(),'Other feature contributions':row.drop(top).sum()})
+    render_prediction_breakdown(components, m.Prediction)
+    st.caption(f'Model block {int(m.Block)}. Quantile sorting selected the {m.SourceQuantile:.1%} source model on this date.')
 
 
 def render_comparison(asset, alpha):
@@ -123,8 +141,7 @@ def render_explanation(asset):
     c1,c2,c3 = st.columns(3)
     c1.metric('Final V2 risk limit',f'{m.FinalVaR99:.2%}')
     c2.metric('Actual loss',f'{pred.loc[day,"Loss"]:.2%}')
-    c3.metric('Calibration adjustment',f'{m.CalibrationBuffer:+.2%}')
-    with st.expander('Reconcile the complete prediction'):
-        st.dataframe(components.rename('Contribution').to_frame().style.format('{:+.3%}'))
-        st.caption(f'Components sum to {components.sum():.3%}; saved final VaR is {m.FinalVaR99:.3%}. Model block {int(m.Block)}. Features were available at the preceding forecast origin.')
+    c3.metric('Calibration change (pp)',f'{100 * m.CalibrationBuffer:+.2f}')
+    render_prediction_breakdown(components, m.FinalVaR99)
+    st.caption(f'Model block {int(m.Block)}. Features were available at the preceding forecast origin.')
     st.caption('CVaR uses a Student-t tail fitted through the 95% and 99% risk limits. This is an explicit tail assumption, not an independently validated AI estimate of extreme losses.')

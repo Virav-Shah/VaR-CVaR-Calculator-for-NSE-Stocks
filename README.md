@@ -537,7 +537,7 @@ For a direct tree forecast, the central identity is:
 expected model output + sum(all feature contributions) = model output
 ```
 
-The expected value is a model reference, not an unconditional historical VaR, a market return forecast or the actual loss. A contribution of `+0.003` raises the log-loss boundary by **0.3 percentage points** relative to that reference. It does not mean a 0.3% probability of a crash.
+The expected value is a model reference, not an unconditional historical VaR, a market return forecast or the actual loss. A contribution of `+0.003` raises the log-loss boundary by **0.3 percentage points** relative to that reference. It does not mean a 0.3% probability of a crash. **SHAP contributions are not shares and are not supposed to total 100%.** For example, a +0.30-percentage-point contribution changes a 4.00% log-loss risk limit to 4.30%, all else equal. Positive and negative effects can offset each other. The dashboard labels the bars in log-loss percentage points rather than using a percent sign that could be mistaken for a feature share.
 
 ### V1: explain the quantile actually selected
 
@@ -563,7 +563,7 @@ Student-t anchor
 = calibrated V2 99% VaR
 ```
 
-The top-five bars explain the **native 99% residual tree**. The Student-t starting limit, calibration and ordering adjustments are separate entries. The buffer is not attributed to the tree. Likewise, an anchor feature's SHAP value describes its effect on the learned correction; the full statistical anchor is shown separately.
+The five individual feature bars and the combined remaining-features bar explain the **native 99% residual tree**. The Student-t starting limit, calibration and ordering adjustments are separate entries. The buffer is not attributed to the tree. Likewise, an anchor feature's SHAP value describes its effect on the learned correction; the full statistical anchor is shown separately.
 
 Origin volatility also scales the residual and its attributions. The chart does not provide a separate SHAP allocation for that final rescaling operation. The reconciliation is exact numerically, but the attribution is not a causal decomposition of the entire forecasting pipeline.
 
@@ -613,7 +613,7 @@ These rankings are descriptive. V1 explains a direct sorted forecast, while V2 e
 
 ### Dashboard implementation
 
-Both model versions offer a crash/breach-date selector, five signed contribution bars, forecast versus realized loss, and an expandable full reconciliation. The date list prioritizes large realized losses and breaches. This is post-event inspection of earlier forecasts, not the use of future losses as prediction features.
+Both model versions offer a crash/breach-date selector, the five largest signed feature effects plus an “Other features (combined)” bar, forecast versus realized loss, and a visible full prediction breakdown. The other-features bar sums every remaining signed SHAP value, so the displayed bars account for all feature contributions. The breakdown separately includes the starting value and any statistical, calibration or ordering adjustments needed to reconstruct the final forecast. The date list prioritizes large realized losses and breaches. This is post-event inspection of earlier forecasts, not the use of future losses as prediction features.
 
 Only saved numerical contributions are needed online. The web app reads compressed V1 and V2 CSVs and plots them with Altair; it does not import the SHAP training library. SHAP remains an offline ML dependency. This avoids the previous missing-package error and allows later tabs, including Portfolio Optimization, to render independently of that training-library installation.
 
@@ -684,7 +684,7 @@ The current app has five tabs. The ML Lifecycle tab was removed because training
 | Tab or chart | What is presented | Why it matters | Availability |
 |---|---|---|---|
 | EDA: return histogram and fitted curves | Empirical distribution with Normal/Student-t comparisons | Shows asymmetry and fat tails that motivate tail forecasting | Price data available in the repository |
-| EDA: QQ plot | Empirical quantiles versus a Normal reference | Makes departures from Normal tail assumptions visible | Always available with prices |
+| EDA: QQ plot | Empirical quantiles versus Normal and Student-t references | Makes departures from Normal tail assumptions visible | Always available with prices |
 | EDA: return and squared-return autocorrelation | Dependence in returns versus volatility proxies | Helps distinguish mean predictability from persistent volatility | Always available with prices |
 | EDA: feature correlations and volatility/VIX plots | Feature relationships and changing volatility | Reveals redundant predictors and market context | Additional local V1 feature/factor files required; not all are in the compact Cloud bundle |
 | VaR/CVaR: model comparison table | Five versions, common dates, coverage, dependence, loss and average limits | Evaluates improvement without comparing unequal evaluation periods | Versioned summary and per-stock scores |
@@ -692,13 +692,17 @@ The current app has five tabs. The ML Lifecycle tab was removed because training
 | VaR/CVaR: calibration comparison | Raw versus adjusted V2 limits | Shows the magnitude and timing of the signed correction | Bundled for all ten stocks |
 | Original V1 risk views | Mean VaR/ES endpoints and additional original V1 plots | Preserves the earlier experiment without adding VaR and ES as though they were separate losses | Full local V1 artifacts required |
 | Regulatory Backtesting | Coverage, dependence, exception and historical forecast diagnostics | Separates overall breach frequency from clustering | Full local V1 scores when present; otherwise statistical-baseline fallback |
-| Explainable AI | Date-specific V1/V2 top-five SHAP bars, realized losses and numerical reconciliation | Makes a risk forecast inspectable while distinguishing ML, statistics and calibration | Compressed saved data available for all ten stocks; explanations are for 99% forecasts |
+| Explainable AI | Date-specific V1/V2 top-five SHAP effects plus remaining features, realized losses and a visible prediction breakdown | Makes a risk forecast inspectable while distinguishing ML, statistics and calibration | Compressed saved data available for all ten stocks; explanations are for 99% forecasts |
 | Portfolio Risk and Return | Daily ES against annualized compound return | Compares capital protection with return using separate axes | Computed from the same ten-stock historical universe |
 | Portfolio Drawdowns | Decline from each strategy's earlier peak | Shows depth and duration of losses, including starting capital | Same evaluation period for all strategies |
 | Performance on Common Stress Dates | Heatmap of strategy returns on the benchmark's worst days | Makes crisis comparisons use identical dates | Same common stress set for all strategies |
 | Asset Allocation Relative to Equal Weight | Signed allocation differences | Shows where optimization concentrates or reduces exposure | Same long-only, 30%-cap constraints |
 | Performance Metrics and Portfolio Weights | Full scorecard and weights | Provides numerical detail behind charts | Expandable view |
 | Cumulative Portfolio Growth (Base 100) | Compounded value of the evaluated portfolios | Connects return and drawdown to a consistent starting value | Expandable view |
+
+### Chart presentation
+
+The EDA Q–Q plots use short panel titles, a shared stock heading, a common observed-return axis in percent log returns and automatic layout spacing. Small points keep the tails visible. The fitted red reference line shows the sample’s quantile relationship; departures from it help compare Normal and Student-t tail fit. Theoretical quantiles have distribution-specific units, so the two horizontal axes should not be interpreted as identical return scales. Return and squared-return autocorrelation plots also use shared headings and explicit lag labels. These are descriptive full-history diagnostics, not training or out-of-sample accuracy scores.
 
 The sidebar confidence selector controls supported risk/portfolio views. Explainable AI explicitly describes **99% VaR** even if a different confidence is selected elsewhere. Portfolio Optimization always covers the whole ten-stock universe, independently of the individual asset selected in the sidebar. The Equal-Weight Portfolio sidebar option has statistical diagnostics; no separate portfolio-level ML model was fitted.
 

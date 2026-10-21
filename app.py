@@ -61,6 +61,7 @@ with tabs[0]:
     with c2:
         st.dataframe(pd.DataFrame({'Value': {'Mean': series.mean(), 'Std': series.std(), 'Skew': series.skew(), 'Excess kurtosis': series.kurt(), 'Minimum': series.min()}}))
     show(plot_qq(series, asset))
+    st.caption('Q–Q plots compare observed returns with each distribution. Points close to the red fitted line indicate a closer fit; departures in the tails reveal extreme moves that the distribution does not capture. Horizontal quantile scales differ between the two distributions.')
     show(plot_acf_returns_vs_squared(series, asset))
     if ready:
         features = read('features.csv')
